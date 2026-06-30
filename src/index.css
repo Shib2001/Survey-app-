@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-surface-secondary dark:bg-secondary-900 text-content dark:text-secondary-50 font-sans antialiased m-0 p-0;
+  }
+}
+
+/* View Transitions API for theme toggle ripple */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* 1. When switching TO Dark mode (Light -> Dark) */
+/* New state (Dark) on top */
+.dark::view-transition-new(root) {
+  z-index: 2;
+}
+.dark::view-transition-old(root) {
+  z-index: 1;
+}
+
+/* 2. When switching TO Light mode (Dark -> Light) */
+/* Old state (Dark) on top */
+:root:not(.dark)::view-transition-old(root) {
+  z-index: 2;
+}
+:root:not(.dark)::view-transition-new(root) {
+  z-index: 1;
+}
