@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LayoutTemplate, User, Moon, Sun, Download, Upload, LogOut, LayoutDashboard, Save, RotateCcw, Menu } from 'lucide-react';
+import { User, Moon, Sun, Download, Upload, LogOut, LayoutDashboard, Save, RotateCcw, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../../supabase/config';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';

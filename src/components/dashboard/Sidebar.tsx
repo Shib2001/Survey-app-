@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { LayoutGrid, BookOpen, BarChart2, Plus, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
+
 
 export type SidebarView = 'surveys' | 'content' | 'analytics';
 
@@ -25,7 +26,7 @@ export const Sidebar: React.FC<Props> = ({ active, onChange }) => {
     return () => document.removeEventListener('toggle-mobile-sidebar', handleToggle);
   }, []);
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -33,7 +34,7 @@ export const Sidebar: React.FC<Props> = ({ active, onChange }) => {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, x: -20 },
     show: { opacity: 1, x: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
   };
