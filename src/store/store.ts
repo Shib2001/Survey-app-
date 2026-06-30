@@ -18,6 +18,7 @@ const storage = {
 import contentReducer from './contentSlice';
 import stylingReducer from './stylingSlice';
 import uiReducer from './uiSlice';
+import authReducer from './authSlice';
 
 const persistConfig = {
   key: 'survey-builder',
@@ -29,6 +30,7 @@ const rootReducer = combineReducers({
   content: undoable(contentReducer),
   styling: undoable(stylingReducer),
   ui: uiReducer,
+  auth: authReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -77,8 +77,14 @@ const contentSlice = createSlice({
     updateThankYouPage(state, action: PayloadAction<Partial<ThankYouPage>>) {
       Object.assign(state.thankYouPage, action.payload);
     },
+    updateContent(_state, action: PayloadAction<ContentState>) {
+      return action.payload;
+    },
+    resetContent() {
+      return initialState;
+    }
   },
 });
 
-export const { setNumberOfPages, updateQuestion, addOption, removeOption, updateThankYouPage } = contentSlice.actions;
+export const { setNumberOfPages, updateQuestion, addOption, removeOption, updateThankYouPage, updateContent, resetContent } = contentSlice.actions;
 export default contentSlice.reducer;

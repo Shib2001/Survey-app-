@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image as ImageIcon, UploadCloud, Link as LinkIcon } from 'lucide-react';
+import { UploadCloud, Link as LinkIcon } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { updateThankYouPage } from '../../store/contentSlice';
 import type { ThankYouPage } from '../../store/types';
@@ -20,7 +20,7 @@ export const ThankYouPageEditor: React.FC = () => {
     if (!file) return;
 
     setIsUploading(true);
-    const loadingToast = toast.loading('Uploading media to Supabase...');
+    const loadingToast = toast.loading('Please wait while uploading...');
     
     try {
       // Use a dummy user ID for now, since we haven't implemented full auth yet

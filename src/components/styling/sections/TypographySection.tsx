@@ -12,7 +12,6 @@ export const TypographySection: React.FC = () => {
   const title = useAppSelector((state) => state.styling.present.questionTitle);
   const subtitle = useAppSelector((state) => state.styling.present.subtitle);
   const tyTitle = useAppSelector((state) => state.styling.present.thankYouTitle);
-  const tySubtitle = useAppSelector((state) => state.styling.present.thankYouSubtitle);
 
   return (
     <Accordion title="Typography" subtitle="Titles and subtitles styling" icon={<Type size={18} />}>

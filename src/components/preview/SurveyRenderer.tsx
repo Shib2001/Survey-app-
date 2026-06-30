@@ -3,10 +3,22 @@ import gsap from 'gsap';
 import { useAppSelector } from '../../store/hooks';
 import { SurveyQuestionRenderer } from './SurveyQuestionRenderer';
 
-export const SurveyRenderer: React.FC = () => {
-  const content = useAppSelector((state) => state.content.present);
-  const styling = useAppSelector((state) => state.styling.present);
+interface SurveyRendererProps {
+  contentOverride?: any;
+  stylingOverride?: any;
+  onComplete?: (answers: any[]) => void;
+  isPublicView?: boolean;
+}
+
+export const SurveyRenderer: React.FC<SurveyRendererProps> = ({ contentOverride, stylingOverride, onComplete, isPublicView = false }) => {
+  const reduxContent = useAppSelector((state) => state.content.present);
+  const reduxStyling = useAppSelector((state) => state.styling.present);
+  
+  const content = contentOverride || reduxContent;
+  const styling = stylingOverride || reduxStyling;
+  
   const [currentStep, setCurrentStep] = useState(0);
+  const [answers, setAnswers] = useState<any[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Animate on step change
@@ -20,26 +32,74 @@ export const SurveyRenderer: React.FC = () => {
     }
   }, [currentStep]);
 
-  const handleNext = () => {
+  useEffect(() => {
+    const handleNextEvent = () => {
+      // Simulate answer to proceed or just proceed without answer for preview purposes
+      handleNext({}); 
+    };
+    
+    const handleBackEvent = () => {
+      handleBack();
+    };
+
+    window.addEventListener('survey-preview-next', handleNextEvent as EventListener);
+    window.addEventListener('survey-preview-back', handleBackEvent as EventListener);
+
+    return () => {
+      window.removeEventListener('survey-preview-next', handleNextEvent as EventListener);
+      window.removeEventListener('survey-preview-back', handleBackEvent as EventListener);
+    };
+  }, [currentStep, content.questions.length, answers]);
+
+  const handleNext = (answerData: any) => {
+    const newAnswers = [...answers];
+    newAnswers[currentStep] = answerData;
+    setAnswers(newAnswers);
+
     if (currentStep < content.questions.length) {
-      // Fade out, then increment
       if (containerRef.current) {
         gsap.to(containerRef.current, {
           opacity: 0,
           x: -20,
           duration: 0.2,
           onComplete: () => {
-            setCurrentStep(prev => prev + 1);
+            const nextStep = currentStep + 1;
+            setCurrentStep(nextStep);
+            if (nextStep >= content.questions.length && onComplete) {
+              onComplete(newAnswers);
+            }
           }
         });
       } else {
-        setCurrentStep(prev => prev + 1);
+        const nextStep = currentStep + 1;
+        setCurrentStep(nextStep);
+        if (nextStep >= content.questions.length && onComplete) {
+          onComplete(newAnswers);
+        }
+      }
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 0) {
+      if (containerRef.current) {
+        gsap.to(containerRef.current, {
+          opacity: 0,
+          x: 20,
+          duration: 0.2,
+          onComplete: () => {
+            setCurrentStep(prev => prev - 1);
+          }
+        });
+      } else {
+        setCurrentStep(prev => prev - 1);
       }
     }
   };
 
   const handleReset = () => {
     setCurrentStep(0);
+    setAnswers([]);
   };
 
   // Helper to build inline styles
@@ -83,14 +143,16 @@ export const SurveyRenderer: React.FC = () => {
         )}
         <h2 style={tyStyleTitle}>{content.thankYouPage.title}</h2>
         <p style={tyStyleSubtitle}>{content.thankYouPage.subtitle}</p>
-        <div className="mt-8">
-          <button 
-            onClick={handleReset}
-            className="px-6 py-2 rounded-full bg-white dark:bg-secondary-800 border border-border dark:border-secondary-700 text-sm font-semibold shadow-sm hover:shadow-md transition-all text-content dark:text-secondary-100"
-          >
-            Reset Preview
-          </button>
-        </div>
+        {!isPublicView && (
+          <div className="mt-8">
+            <button 
+              onClick={handleReset}
+              className="px-6 py-2 rounded-full bg-white dark:bg-secondary-800 border border-border dark:border-secondary-700 text-sm font-semibold shadow-sm hover:shadow-md transition-all text-content dark:text-secondary-100"
+            >
+              Reset Preview
+            </button>
+          </div>
+        )}
       </div>
     );
   }
@@ -99,16 +161,14 @@ export const SurveyRenderer: React.FC = () => {
   if (!activeQuestion) return null;
 
   return (
-    <div ref={containerRef} className="w-full h-full">
-      <SurveyQuestionRenderer question={activeQuestion} onNext={handleNext} />
-      
-      {/* Dev Tool: Reset Button */}
-      <button 
-        onClick={handleReset}
-        className="absolute bottom-4 left-0 right-0 mx-auto w-max px-4 py-1.5 rounded-full bg-black/10 dark:bg-white/10 text-[10px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 hover:bg-black/20 dark:hover:bg-white/20 transition-colors z-50 backdrop-blur-sm"
-      >
-        Reset to Q1
-      </button>
+    <div ref={containerRef} className="w-full h-full relative">
+      <SurveyQuestionRenderer 
+        question={activeQuestion} 
+        onNext={handleNext} 
+        onBack={handleBack}
+        canGoBack={currentStep > 0}
+        stylingOverride={styling}
+      />
     </div>
   );
 };

@@ -8,6 +8,64 @@
   }
 }
 
+/* ──────────────────────────────────────────────────
+   GLOBAL DARK MODE: Force all form inputs to match
+   the dark theme. This overrides any bg-white class
+   that might still be applied in dark mode.
+────────────────────────────────────────────────── */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.dark select,
+.dark textarea {
+  background-color: #1E293B !important;
+  color: #F1F5F9 !important;
+  border-color: #334155 !important;
+}
+
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #DC2626 !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748B !important;
+}
+
+/* Dark option elements inside selects */
+.dark select option {
+  background-color: #1E293B;
+  color: #F1F5F9;
+}
+
+/* Hide scrollbar globally but allow scrolling */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar globally but allow scrolling */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
 /* View Transitions API for theme toggle ripple */
 ::view-transition-old(root),
 ::view-transition-new(root) {

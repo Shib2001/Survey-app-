@@ -1,15 +1,20 @@
 import React from 'react';
-import { Check, X } from 'lucide-react';
+import { Check, ArrowLeft, ArrowRight } from 'lucide-react';
 import type { QuestionPage } from '../../store/types';
 import { useAppSelector } from '../../store/hooks';
 
 interface SurveyQuestionRendererProps {
   question: QuestionPage;
-  onNext: () => void;
+  onNext: (answerData: any) => void;
+  onBack?: () => void;
+  canGoBack?: boolean;
+  stylingOverride?: any;
 }
 
-export const SurveyQuestionRenderer: React.FC<SurveyQuestionRendererProps> = ({ question, onNext }) => {
-  const styling = useAppSelector((state) => state.styling.present);
+export const SurveyQuestionRenderer: React.FC<SurveyQuestionRendererProps> = ({ question, onNext, onBack, canGoBack = false, stylingOverride }) => {
+  const reduxStyling = useAppSelector((state) => state.styling.present);
+  const styling = stylingOverride || reduxStyling;
+
   const [selectedValue, setSelectedValue] = React.useState<string | null>(null);
   const [selectedMulti, setSelectedMulti] = React.useState<string[]>([]);
   const [textValue, setTextValue] = React.useState('');
@@ -73,20 +78,6 @@ export const SurveyQuestionRenderer: React.FC<SurveyQuestionRendererProps> = ({ 
     fontWeight: 700,
   };
 
-  const crossStyle = {
-    ...buildMarginStyle(styling.crossButton.margin),
-    width: `${styling.crossButton.size}px`,
-    height: `${styling.crossButton.size}px`,
-    color: styling.crossButton.crossColor,
-    position: 'absolute' as any,
-    top: 0,
-    right: 0,
-    display: styling.crossButton.enabled ? 'flex' : 'none',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-  };
-
   const renderOption = (opt: any, isSelected: boolean, onClick: () => void) => {
     const stateStyle = isSelected ? styling.selectedOption : styling.unselectedOption;
     const baseStyle = {
@@ -125,11 +116,37 @@ export const SurveyQuestionRenderer: React.FC<SurveyQuestionRendererProps> = ({ 
     );
   };
 
+  const handleNextClick = () => {
+    const answerData: any = { questionId: question.id, questionTitle: question.title };
+    if (question.type === 'single_choice') answerData.answer = selectedValue;
+    else if (question.type === 'multiple_choice') answerData.answer = selectedMulti;
+    else if (question.type === 'text') answerData.answer = textValue;
+    else if (question.type === 'range') answerData.answer = rangeValue;
+    else if (question.type === 'rating') answerData.answer = ratingValue;
+    
+    if (question.additionalComments) {
+      answerData.additionalComments = additionalComments;
+    }
+    onNext(answerData);
+  };
+
   return (
     <div className="w-full h-full relative flex flex-col p-6 overflow-y-auto hide-scrollbar">
-      {/* Cross Button */}
-      <div style={crossStyle}>
-        <X size={styling.crossButton.size} />
+      {/* Navigation Arrows */}
+      <div className="flex items-center justify-between mb-4 -mx-2">
+        <button 
+          onClick={onBack}
+          disabled={!canGoBack}
+          className={`p-2 rounded-full transition-colors ${canGoBack ? 'hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer text-content dark:text-secondary-100' : 'opacity-30 cursor-not-allowed text-content-tertiary dark:text-secondary-600'}`}
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <button 
+          onClick={handleNextClick}
+          className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-content dark:text-secondary-100"
+        >
+          <ArrowRight size={20} />
+        </button>
       </div>
 
       <div style={titleStyle}>{question.title}</div>
@@ -137,12 +154,12 @@ export const SurveyQuestionRenderer: React.FC<SurveyQuestionRendererProps> = ({ 
 
       <div className="flex-1 mt-6 flex flex-col">
         {/* Single Choice */}
-        {question.type === 'single_choice' && question.options.map(opt => 
+        {question.type === 'single_choice' && question.options.map((opt: any) => 
           renderOption(opt, selectedValue === opt.id, () => setSelectedValue(opt.id))
         )}
 
         {/* Multiple Choice */}
-        {question.type === 'multiple_choice' && question.options.map(opt => {
+        {question.type === 'multiple_choice' && question.options.map((opt: any) => {
           const isSelected = selectedMulti.includes(opt.id);
           return renderOption(opt, isSelected, () => {
             if (isSelected) setSelectedMulti(selectedMulti.filter(id => id !== opt.id));
@@ -211,25 +228,31 @@ export const SurveyQuestionRenderer: React.FC<SurveyQuestionRendererProps> = ({ 
 
         {/* Additional Comments */}
         {question.additionalComments && (
-          <textarea
-            value={additionalComments}
-            onChange={(e) => setAdditionalComments(e.target.value)}
-            placeholder="Additional comments..."
-            className="w-full rounded-xl border p-4 bg-transparent outline-none mt-4 transition-colors"
-            style={{
-              borderColor: styling.unselectedOption.borderColor,
-              borderWidth: `${styling.unselectedOption.borderWidth}px`,
-              color: styling.unselectedOption.textColor,
-              backgroundColor: styling.unselectedOption.backgroundColor,
-              fontFamily: styling.unselectedOption.fontFamily,
-              minHeight: '80px'
-            }}
-          />
+          <div className="mt-4 flex-shrink-0">
+            <textarea
+              value={additionalComments}
+              onChange={(e) => setAdditionalComments(e.target.value)}
+              placeholder="Additional comments..."
+              className="w-full rounded-xl p-4 bg-transparent outline-none transition-colors"
+              style={{
+                borderColor: styling.additionalComment.borderColor,
+                borderWidth: `${styling.additionalComment.borderWidth}px`,
+                borderStyle: 'solid',
+                color: styling.additionalComment.textColor,
+                backgroundColor: styling.additionalComment.backgroundColor,
+                fontFamily: styling.additionalComment.fontFamily,
+                fontSize: `${styling.additionalComment.fontSize}px`,
+                fontWeight: styling.additionalComment.fontWeight,
+                textAlign: styling.additionalComment.alignment,
+                minHeight: '80px',
+              }}
+            />
+          </div>
         )}
       </div>
 
       <div className="mt-6 flex justify-center">
-        <button style={ctaStyle} onClick={onNext}>
+        <button style={ctaStyle} onClick={handleNextClick}>
           {question.submitButtonText || 'Next'}
         </button>
       </div>

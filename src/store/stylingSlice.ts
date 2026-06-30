@@ -31,9 +31,12 @@ const stylingSlice = createSlice({
   reducers: {
     updateStyling(state, action: PayloadAction<Partial<StylingState>>) {
       Object.assign(state, action.payload);
+    },
+    resetStyling() {
+      return initialState;
     }
   }
 });
 
-export const { updateStyling } = stylingSlice.actions;
+export const { updateStyling, resetStyling } = stylingSlice.actions;
 export default stylingSlice.reducer;
