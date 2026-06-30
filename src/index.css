@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body {
     @apply bg-surface-secondary dark:bg-secondary-900 text-content dark:text-secondary-50 font-sans antialiased m-0 p-0;
   }
 }
@@ -64,6 +64,12 @@
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+/* Disable transitions during view transitions to prevent blinking */
+.disable-transitions,
+.disable-transitions * {
+  transition: none !important;
 }
 
 /* View Transitions API for theme toggle ripple */

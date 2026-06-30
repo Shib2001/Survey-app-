@@ -39,36 +39,81 @@ export const SurveysView: React.FC<Props> = ({ user, surveys, loading, onDelete,
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center h-full py-24 gap-8 px-6">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-md">
-          <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
-            <LayoutTemplate size={32} className="text-red-600" />
+      <div className="flex flex-col items-center justify-center h-full py-16 gap-12 px-6 overflow-y-auto">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-2xl mt-8">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-inner">
+            <LayoutTemplate size={32} className="text-red-600 dark:text-red-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Build surveys that people love</h2>
-          <p className="text-gray-500 text-sm mb-6 leading-relaxed">
-            Sign in to start creating, sharing, and tracking powerful survey campaigns.
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">
+            Build surveys that <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-400">people love</span>
+          </h2>
+          <p className="text-gray-500 dark:text-gray-400 text-base md:text-lg mb-8 leading-relaxed max-w-xl mx-auto">
+            Sign in to start creating, sharing, and tracking powerful survey campaigns in minutes. No coding required.
           </p>
-          <button onClick={onSignIn}
-            className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-sm hover:shadow-md transition-all font-semibold text-sm">
-            Sign In to Get Started
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button onClick={onSignIn}
+              className="px-8 py-3.5 bg-white dark:bg-secondary-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-secondary-700 hover:border-gray-300 dark:hover:border-secondary-600 hover:shadow-md rounded-xl transition-all font-semibold text-sm w-full sm:w-auto">
+              Sign In to Get Started
+            </button>
+            <Link to="/builder/new"
+              className="px-8 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all font-semibold text-sm w-full sm:w-auto flex items-center justify-center gap-2">
+              Start your first survey
+              <Zap size={16} />
+            </Link>
+          </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-3xl">
+        <motion.div 
+          initial="hidden" animate="show"
+          variants={{
+            hidden: { opacity: 0 },
+            show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
+          }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl"
+        >
           {[
-            { icon: FileText, title: 'Drag & Drop Builder', desc: 'Multi-page surveys with rich question types built in minutes.' },
-            { icon: Share2, title: 'Instant Sharing', desc: 'One-click public link — share anywhere, embed anywhere.' },
-            { icon: BarChart2, title: 'Live Analytics', desc: 'Track responses, completion rate, and insights in real time.' },
-          ].map((f, i) => (
-            <motion.div key={f.title} custom={i} variants={fadeUp} initial="hidden" animate="show"
-              className="bg-white dark:bg-secondary-900 border border-gray-100 dark:border-secondary-800 rounded-xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-              <div className="w-9 h-9 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-center justify-center mb-3">
-                <f.icon size={18} className="text-red-600 dark:text-red-500" />
+            { icon: FileText, title: 'Drag & Drop Builder', desc: 'Create beautiful, multi-page surveys with rich question types built in minutes.' },
+            { icon: Share2, title: 'Instant Sharing', desc: 'Generate a one-click public link to share anywhere or embed on your website.' },
+            { icon: BarChart2, title: 'Live Analytics', desc: 'Track responses, completion rates, and insights in real-time as they come in.' },
+          ].map((f) => (
+            <motion.div key={f.title} variants={fadeUp}
+              className="bg-white dark:bg-secondary-900 border border-gray-100 dark:border-secondary-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group">
+              <div className="w-12 h-12 bg-red-50 dark:bg-red-900/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <f.icon size={22} className="text-red-600 dark:text-red-500" />
               </div>
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">{f.title}</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{f.desc}</p>
+              <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">{f.title}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{f.desc}</p>
             </motion.div>
           ))}
+        </motion.div>
+
+        <div className="w-full max-w-4xl mt-6 mb-12 bg-gradient-to-br from-red-50 to-white dark:from-secondary-800/50 dark:to-secondary-900 rounded-3xl p-8 md:p-12 border border-red-100 dark:border-secondary-800 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-red-500/10 blur-3xl rounded-full pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-blue-500/5 blur-3xl rounded-full pointer-events-none" />
+          
+          <div className="relative z-10 text-center mb-10">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">How it works</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm max-w-md mx-auto">Three simple steps to gather the data you need and make better decisions.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+            {[
+              { step: '01', title: 'Create', desc: 'Design your survey using our intuitive builder and beautiful themes.' },
+              { step: '02', title: 'Share', desc: 'Send your survey via email, social media, or embed it anywhere.' },
+              { step: '03', title: 'Analyze', desc: 'Watch results pour in and view automated reports instantly.' },
+            ].map((s, i) => (
+              <div key={s.step} className="text-center relative">
+                {i !== 2 && (
+                  <div className="hidden md:block absolute top-6 left-1/2 w-full h-0.5 bg-gradient-to-r from-red-200 to-transparent dark:from-red-900/50" />
+                )}
+                <div className="w-12 h-12 bg-white dark:bg-secondary-800 border-2 border-red-100 dark:border-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600 dark:text-red-400 font-bold shadow-sm relative z-10">
+                  {s.step}
+                </div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{s.title}</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -113,7 +158,14 @@ export const SurveysView: React.FC<Props> = ({ user, surveys, loading, onDelete,
       </div>
 
       {/* Quick Actions */}
-      <div>
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: { opacity: 0 },
+          show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
+        }}
+      >
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Quick Actions</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
@@ -123,21 +175,23 @@ export const SurveysView: React.FC<Props> = ({ user, surveys, loading, onDelete,
             { icon: Share2, label: 'Share Link', secondary: true },
           ].map((a) => (
             a.to ? (
-              <Link key={a.label} to={a.to}
-                className="flex flex-col items-center gap-2 p-4 bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-sm transition-all">
-                <a.icon size={20} />
-                <span className="text-xs font-semibold">{a.label}</span>
-              </Link>
+              <motion.div key={a.label} variants={fadeUp} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <Link to={a.to}
+                  className="flex flex-col items-center justify-center gap-2 h-full p-4 bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-sm transition-colors">
+                  <a.icon size={20} />
+                  <span className="text-xs font-semibold">{a.label}</span>
+                </Link>
+              </motion.div>
             ) : (
-              <button key={a.label}
-                className="flex flex-col items-center gap-2 p-4 bg-white dark:bg-secondary-900 border border-gray-100 dark:border-secondary-800 hover:border-red-200 dark:hover:border-red-900/50 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-xl shadow-sm hover:shadow-md transition-all">
+              <motion.button key={a.label} variants={fadeUp} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                className="flex flex-col items-center justify-center gap-2 w-full h-full p-4 bg-white dark:bg-secondary-900 border border-gray-100 dark:border-secondary-800 hover:border-red-200 dark:hover:border-red-900/50 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-xl shadow-sm hover:shadow-md transition-colors">
                 <a.icon size={20} />
                 <span className="text-xs font-semibold">{a.label}</span>
-              </button>
+              </motion.button>
             )
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Survey List */}
       <div>
@@ -217,13 +271,15 @@ export const SurveysView: React.FC<Props> = ({ user, surveys, loading, onDelete,
             ))}
 
             {/* Add new card */}
-            <Link to="/builder/new"
-              className="bg-white dark:bg-secondary-900 border-2 border-dashed border-gray-200 dark:border-secondary-700 hover:border-red-300 dark:hover:border-red-500/50 rounded-xl flex flex-col items-center justify-center gap-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 py-10 transition-all group">
-              <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-secondary-800 group-hover:bg-red-50 dark:group-hover:bg-red-900/20 flex items-center justify-center transition-colors">
-                <Plus size={18} />
-              </div>
-              <span className="text-xs font-medium">New Survey</span>
-            </Link>
+            <motion.div custom={surveys.length} variants={fadeUp} initial="hidden" animate="show" whileHover={{ scale: 1.02 }} className="h-full">
+              <Link to="/builder/new"
+                className="bg-white dark:bg-secondary-900 border-2 border-dashed border-gray-200 dark:border-secondary-700 hover:border-red-300 dark:hover:border-red-500/50 rounded-xl flex flex-col items-center justify-center gap-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 h-full min-h-[200px] transition-colors group">
+                <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-secondary-800 group-hover:bg-red-50 dark:group-hover:bg-red-900/20 flex items-center justify-center transition-colors">
+                  <Plus size={18} />
+                </div>
+                <span className="text-xs font-medium">New Survey</span>
+              </Link>
+            </motion.div>
           </div>
         )}
       </div>

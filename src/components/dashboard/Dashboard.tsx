@@ -10,6 +10,7 @@ import { SurveysView } from './SurveysView';
 import { ContentView } from './ContentView';
 import { AnalyticsView } from './AnalyticsView';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
+import { AnimatedPerimeter } from '../layout/AnimatedPerimeter';
 
 export const Dashboard: React.FC = () => {
   const user = useAppSelector(state => state.auth.user);
@@ -88,14 +89,15 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-surface-secondary dark:bg-secondary-900 font-sans flex flex-col transition-colors">
+    <div className="h-screen h-[100dvh] bg-surface-secondary dark:bg-secondary-900 font-sans flex flex-col relative">
+      <AnimatedPerimeter />
       <Header className="bg-surface dark:bg-secondary-900 border-b border-border dark:border-secondary-800 z-10 relative shadow-sm" />
       
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar Navigation */}
         <Sidebar active={activeView} onChange={(view) => {
-          if (!user && (view === 'content' || view === 'analytics')) {
-            toast('Please login first to see the content', { icon: '🔒' });
+          if (!user && view === 'analytics') {
+            toast('Please login first to see the analytics', { icon: '🔒' });
             return;
           }
           setActiveView(view);

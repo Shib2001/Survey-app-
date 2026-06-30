@@ -13,6 +13,8 @@ import { resetContent } from '../../store/contentSlice';
 import { resetStyling } from '../../store/stylingSlice';
 import { SurveyCompleteModal } from '../builder/SurveyCompleteModal';
 import { ResetConfirmModal } from '../builder/ResetConfirmModal';
+import Swal from 'sweetalert2';
+import logoUrl from '../../assets/logo.png';
 
 export const Header: React.FC<{ className?: string }> = ({ className = '' }) => {
   const [isDark, setIsDark] = useState(false);
@@ -31,10 +33,8 @@ export const Header: React.FC<{ className?: string }> = ({ className = '' }) => 
   const { id } = useParams();
   const isBuilderMode = location.pathname.startsWith('/builder');
 
+  // Auth Listener
   useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'));
-    
-    // Auth Listener
     supabase.auth.getSession().then(({ data: { session } }) => {
       dispatch(setReduxUser(session?.user ? { id: session.user.id, email: session.user.email || '' } : null));
     });
@@ -43,8 +43,25 @@ export const Header: React.FC<{ className?: string }> = ({ className = '' }) => 
       dispatch(setReduxUser(session?.user ? { id: session.user.id, email: session.user.email || '' } : null));
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [dispatch]);
+
+  // Theme and Custom Event Listeners
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains('dark'));
+    
+    const onSave = () => handleSave();
+    const onReset = () => handleReset();
+    document.addEventListener('save-survey', onSave);
+    document.addEventListener('reset-survey', onReset);
+
+    return () => {
+      document.removeEventListener('save-survey', onSave);
+      document.removeEventListener('reset-survey', onReset);
+    };
+  }, [user, id, contentState, stylingState]);
 
   const handleSignIn = () => {
     dispatch(setAuthModalOpen(true));
@@ -60,8 +77,17 @@ export const Header: React.FC<{ className?: string }> = ({ className = '' }) => 
 
   const handleSave = async () => {
     if (!user) {
-      toast.error('Please sign in to save your survey');
-      dispatch(setAuthModalOpen(true));
+      Swal.fire({
+        title: 'Sign In Required',
+        text: 'Sign in first to save your form',
+        icon: 'warning',
+        confirmButtonColor: '#dc2626',
+        confirmButtonText: 'Sign In'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          dispatch(setAuthModalOpen(true));
+        }
+      });
       return;
     }
 
@@ -148,6 +174,8 @@ export const Header: React.FC<{ className?: string }> = ({ className = '' }) => 
       Math.max(y, innerHeight - y)
     );
 
+    document.documentElement.classList.add('disable-transitions');
+
     const transition = (document as any).startViewTransition(() => {
       document.documentElement.classList.toggle('dark');
       setIsDark(nextTheme);
@@ -167,14 +195,23 @@ export const Header: React.FC<{ className?: string }> = ({ className = '' }) => 
           duration: 500,
           easing: 'ease-in-out',
           pseudoElement: nextTheme ? '::view-transition-new(root)' : '::view-transition-old(root)',
+          fill: 'forwards',
         }
       );
+    });
+
+    transition.finished.then(() => {
+      document.documentElement.classList.remove('disable-transitions');
     });
   };
 
   return (
-    <>
-      <header className={`flex items-center justify-between px-4 sm:px-6 py-4 dark:bg-secondary-900 dark:border-secondary-800 transition-colors ${className}`}>
+    <motion.div
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: 'spring', damping: 22, stiffness: 120 }}
+    >
+      <header className={`flex items-center justify-between px-4 sm:px-6 py-4 dark:bg-secondary-900 dark:border-secondary-800 ${className}`}>
         <div className="flex items-center gap-3">
           {/* Hamburger Menu (Mobile Dashboard) */}
           {!isBuilderMode && (
@@ -189,8 +226,8 @@ export const Header: React.FC<{ className?: string }> = ({ className = '' }) => 
             </button>
           )}
 
-          <div className="bg-primary-500 p-2 rounded-lg text-white">
-            <LayoutTemplate size={24} />
+          <div className="bg-white p-1 rounded-lg flex items-center justify-center shadow-sm">
+            <img src={logoUrl} alt="Survey Campaign Builder Logo" className="w-7 h-7 object-contain" />
           </div>
           <Link to="/">
             <motion.h1 
@@ -320,6 +357,6 @@ export const Header: React.FC<{ className?: string }> = ({ className = '' }) => 
         onClose={() => setResetModalOpen(false)}
         onConfirm={handleConfirmReset}
       />
-    </>
+    </motion.div>
   );
 };
